@@ -149,6 +149,20 @@ app.put("/api/nodes/:id", (req, res) => {
   res.json(nodes[index]);
 });
 
+app.post("/api/nodes/bulk-update", (req, res) => {
+  const { ids, updates } = req.body;
+  if (!Array.isArray(ids)) return res.status(400).json({ error: "ids must be an array" });
+  nodes = nodes.map(n => ids.includes(n.id) ? { ...n, ...updates } : n);
+  res.json({ success: true, updatedCount: ids.length, nodes });
+});
+
+app.post("/api/nodes/bulk-delete", (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids)) return res.status(400).json({ error: "ids must be an array" });
+  nodes = nodes.filter(n => !ids.includes(n.id));
+  res.json({ success: true, deletedCount: ids.length, remainingCount: nodes.length });
+});
+
 app.delete("/api/nodes/:id", (req, res) => {
   const { id } = req.params;
   nodes = nodes.filter(n => n.id !== id);

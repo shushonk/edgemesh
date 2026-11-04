@@ -116,6 +116,34 @@ export default function App() {
     }
   };
 
+  const handleBulkUpdateNodes = async (ids: string[], updates: any) => {
+    try {
+      await fetch('/api/nodes/bulk-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, updates })
+      });
+      setNodes(prev => prev.map(n => ids.includes(n.id) ? { ...n, ...updates } : n));
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to perform bulk update.', 'error');
+    }
+  };
+
+  const handleBulkDeleteNodes = async (ids: string[]) => {
+    try {
+      await fetch('/api/nodes/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids })
+      });
+      setNodes(prev => prev.filter(n => !ids.includes(n.id)));
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to perform bulk delete.', 'error');
+    }
+  };
+
   // Handlers for CDN & Cache
   const handleAddDomain = async (domainObj: { domain: string; origin: string }) => {
     try {
@@ -212,6 +240,12 @@ export default function App() {
           currentWorkspace={currentWorkspace || workspaces[0]}
           onSelectWorkspace={setCurrentWorkspace}
           activeTabTitle={tabTitles[activeTab] || 'Dashboard'}
+          nodes={nodes}
+          domains={cdnData?.domains || []}
+          cacheRules={cdnData?.cacheRules || []}
+          functionsList={functionsList}
+          onNavigate={(tab: string) => setActiveTab(tab)}
+          addToast={addToast}
         />
 
         <main className="flex-1 overflow-y-auto p-8 bg-[#080B12]">
@@ -224,6 +258,8 @@ export default function App() {
                 onAddNode={handleAddNode}
                 onDeleteNode={handleDeleteNode}
                 onUpdateNode={handleUpdateNode}
+                onBulkUpdateNodes={handleBulkUpdateNodes}
+                onBulkDeleteNodes={handleBulkDeleteNodes}
                 addToast={addToast}
               />
             )}
