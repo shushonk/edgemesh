@@ -196,9 +196,9 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-xs font-medium text-slate-200 transition-colors"
           >
             <Globe2 className="w-3.5 h-3.5 text-[#3985FF]" />
-            <span>{currentWorkspace.name}</span>
+            <span>{currentWorkspace?.name || 'Global Production'}</span>
             <span className="px-1.5 py-0.5 text-[10px] font-mono bg-[#3985FF]/20 text-[#16D9E8] rounded">
-              {currentWorkspace.plan}
+              {currentWorkspace?.plan || 'Enterprise'}
             </span>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
           </button>
@@ -218,7 +218,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="font-medium text-white">{ws.name}</div>
                     <div className="text-[10px] text-slate-400">Plan: {ws.plan}</div>
                   </div>
-                  {ws.id === currentWorkspace.id && <Check className="w-4 h-4 text-[#3985FF]" />}
+                  {ws.id === currentWorkspace?.id && <Check className="w-4 h-4 text-[#3985FF]" />}
                 </button>
               ))}
             </div>

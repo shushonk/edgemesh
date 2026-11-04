@@ -9,7 +9,7 @@ export const DashboardWidget: React.FC<DashboardWidgetProps> = ({ nodes }) => {
     <div className="p-6 rounded-2xl bg-[#101522] border border-slate-800 shadow-xl">
       <h3 className="text-sm font-bold text-white mb-6">Real-Time Fleet Utilization</h3>
       <div className="space-y-4">
-        {nodes.map((node) => (
+        {(nodes || []).map((node) => (
           <div key={node.id} className="space-y-1">
             <div className="flex justify-between text-[10px] font-mono text-slate-400">
               <span className="truncate w-1/3">{node.name}</span>

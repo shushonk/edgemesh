@@ -9,7 +9,7 @@ interface OverviewTabProps {
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate, nodes }) => {
   const kpiCards = [
-    { title: 'Global Edge Nodes', value: `${nodes.length} Active`, change: '+2 this month', icon: Server, color: 'text-[#3985FF]', bg: 'bg-[#3985FF]/10' },
+    { title: 'Global Edge Nodes', value: `${(nodes || []).length} Active`, change: '+2 this month', icon: Server, color: 'text-[#3985FF]', bg: 'bg-[#3985FF]/10' },
     { title: 'Total Requests (24h)', value: '348.9B', change: '+14.2% vs yesterday', icon: Zap, color: 'text-[#16D9E8]', bg: 'bg-[#16D9E8]/10' },
     { title: 'Bandwidth Consumed', value: '1.84 PB', change: '94.8 Gbps peak', icon: HardDrive, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
     { title: 'Avg Global Latency', value: '19.4ms', change: '-2.1ms optimization', icon: Activity, color: 'text-purple-400', bg: 'bg-purple-500/10' },
@@ -38,7 +38,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate, nodes }) =
             onClick={() => onNavigate('nodes')}
             className="px-4 py-2 bg-[#3985FF] hover:bg-[#3985FF]/90 text-white text-xs font-medium rounded-xl transition-all shadow-lg shadow-[#3985FF]/20 flex items-center gap-2"
           >
-            <Server className="w-4 h-4" /> Manage Nodes ({nodes.length})
+            <Server className="w-4 h-4" /> Manage Nodes ({(nodes || []).length})
           </button>
           <button
             onClick={() => onNavigate('assistant')}
@@ -125,7 +125,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate, nodes }) =
                 <span className="text-xs text-emerald-400 font-mono">10 Operational</span>
               </div>
               <div className="space-y-3">
-                {nodes.slice(0, 5).map((node) => (
+                {(nodes || []).slice(0, 5).map((node) => (
                   <div key={node.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
                     <div className="flex items-center gap-3">
                       <span className={`w-2.5 h-2.5 rounded-full ${node.status === 'healthy' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
