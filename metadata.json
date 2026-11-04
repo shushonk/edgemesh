@@ -1,0 +1,6 @@
+{
+  "name": "EdgeMesh - Global CDN & Edge Computing Platform",
+  "description": "Global edge infrastructure management platform for distributed edge nodes, CDN caching, edge functions, and AI network analysis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
