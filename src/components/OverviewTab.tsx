@@ -1,5 +1,6 @@
 import React from 'react';
-import { Server, Zap, Activity, HardDrive, Globe, AlertTriangle, ArrowUpRight, TrendingUp, ShieldCheck } from 'lucide-react';
+import { Server, Zap, Activity, HardDrive, Globe, ArrowUpRight, TrendingUp, ShieldCheck } from 'lucide-react';
+import { DashboardWidget } from './DashboardWidget';
 
 interface OverviewTabProps {
   onNavigate: (tab: string) => void;
@@ -7,9 +8,6 @@ interface OverviewTabProps {
 }
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate, nodes }) => {
-  const activeCount = nodes.filter(n => n.status === 'healthy').length;
-  const degradedCount = nodes.filter(n => n.status === 'degraded' || n.status === 'offline').length;
-
   const kpiCards = [
     { title: 'Global Edge Nodes', value: `${nodes.length} Active`, change: '+2 this month', icon: Server, color: 'text-[#3985FF]', bg: 'bg-[#3985FF]/10' },
     { title: 'Total Requests (24h)', value: '348.9B', change: '+14.2% vs yesterday', icon: Zap, color: 'text-[#16D9E8]', bg: 'bg-[#16D9E8]/10' },
@@ -119,36 +117,40 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate, nodes }) =
         </div>
 
         {/* PoP Health & Status Card */}
-        <div className="p-6 rounded-2xl bg-[#101522] border border-slate-800 shadow-xl flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-white">Edge PoP Health</h3>
-              <span className="text-xs text-emerald-400 font-mono">10 Operational</span>
-            </div>
-            <div className="space-y-3">
-              {nodes.slice(0, 5).map((node) => (
-                <div key={node.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
-                  <div className="flex items-center gap-3">
-                    <span className={`w-2.5 h-2.5 rounded-full ${node.status === 'healthy' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
-                    <div>
-                      <div className="text-xs font-medium text-white">{node.name}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">{node.region} · {node.latency}</div>
+        <div className="space-y-6">
+          <div className="p-6 rounded-2xl bg-[#101522] border border-slate-800 shadow-xl flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-white">Edge PoP Health</h3>
+                <span className="text-xs text-emerald-400 font-mono">10 Operational</span>
+              </div>
+              <div className="space-y-3">
+                {nodes.slice(0, 5).map((node) => (
+                  <div key={node.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+                    <div className="flex items-center gap-3">
+                      <span className={`w-2.5 h-2.5 rounded-full ${node.status === 'healthy' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+                      <div>
+                        <div className="text-xs font-medium text-white">{node.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">{node.region} · {node.latency}</div>
+                      </div>
+                    </div>
+                    <div className="text-right font-mono text-xs text-slate-300">
+                      {node.cpu}% CPU
                     </div>
                   </div>
-                  <div className="text-right font-mono text-xs text-slate-300">
-                    {node.cpu}% CPU
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
+            <button
+              onClick={() => onNavigate('nodes')}
+              className="w-full mt-4 py-2 text-xs font-medium text-center bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-colors border border-slate-700"
+            >
+              View All Edge Nodes
+            </button>
           </div>
 
-          <button
-            onClick={() => onNavigate('nodes')}
-            className="w-full mt-4 py-2 text-xs font-medium text-center bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-colors border border-slate-700"
-          >
-            View All Edge Nodes
-          </button>
+          <DashboardWidget nodes={nodes} />
         </div>
       </div>
     </div>
