@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Globe, Server, Activity, ShieldCheck, MapPin, ChevronRight, RefreshCw } from 'lucide-react';
+import * as d3 from 'd3';
 
 interface GlobalNetworkTabProps {
   networkData: any;
@@ -7,6 +8,7 @@ interface GlobalNetworkTabProps {
 
 export const GlobalNetworkTab: React.FC<GlobalNetworkTabProps> = ({ networkData }) => {
   const [selectedRegion, setSelectedRegion] = useState<any>(networkData?.regions?.[0] || null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   const regions = networkData?.regions || [
     { name: "North America", nodeCount: 2, status: "healthy", avgLatency: "16ms", rps: "32,700 req/s", bandwidth: "10.0 TB/s", availability: "99.98%" },
@@ -18,6 +20,46 @@ export const GlobalNetworkTab: React.FC<GlobalNetworkTabProps> = ({ networkData 
     { name: "Africa", nodeCount: 1, status: "healthy", avgLatency: "52ms", rps: "3,800 req/s", bandwidth: "1.1 TB/s", availability: "99.90%" },
     { name: "Australia", nodeCount: 1, status: "healthy", avgLatency: "31ms", rps: "7,900 req/s", bandwidth: "2.4 TB/s", availability: "99.98%" }
   ];
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const width = 800;
+    const height = 400;
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
+
+    const nodes = regions.map((r: any, i: number) => ({ id: i, name: r.name, group: r.status }));
+    const links = regions.map((_: any, i: number) => ({ source: 0, target: i })).filter((l: any) => l.source !== l.target);
+
+    const simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id((d: any) => d.id))
+      .force('charge', d3.forceManyBody().strength(-100))
+      .force('center', d3.forceCenter(width / 2, height / 2));
+
+    const link = svg.append('g')
+      .selectAll('line')
+      .data(links)
+      .enter().append('line')
+      .attr('stroke', '#3985FF')
+      .attr('stroke-opacity', 0.6);
+
+    const node = svg.append('g')
+      .selectAll('circle')
+      .data(nodes)
+      .enter().append('circle')
+      .attr('r', 8)
+      .attr('fill', (d: any) => d.group === 'healthy' ? '#10b981' : '#f59e0b');
+
+    simulation.on('tick', () => {
+      link.attr('x1', (d: any) => d.source.x)
+          .attr('y1', (d: any) => d.source.y)
+          .attr('x2', (d: any) => d.target.x)
+          .attr('y2', (d: any) => d.target.y);
+      node.attr('cx', (d: any) => d.x)
+          .attr('cy', (d: any) => d.y);
+    });
+  }, [regions]);
 
   return (
     <div className="space-y-6">
@@ -41,43 +83,13 @@ export const GlobalNetworkTab: React.FC<GlobalNetworkTabProps> = ({ networkData 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 p-6 rounded-2xl bg-[#101522] border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[420px]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-white">Anycast PoP Regional Map</h3>
-            <span className="text-xs text-slate-400 font-mono">Click region for telemetry</span>
+            <h3 className="text-sm font-bold text-white">Anycast PoP Regional Map (D3 Force Graph)</h3>
           </div>
 
-          {/* Stylized World Map Grid Canvas */}
           <div className="relative flex-1 bg-[#080B12]/80 rounded-xl border border-slate-800/80 p-6 flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(#3985FF_1px,transparent_1px)] [background-size:24px_24px] opacity-15"></div>
-            
-            {/* Visual Region Nodes positioned on simulated world grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full z-10">
-              {regions.map((reg: any, idx: number) => {
-                const isSelected = selectedRegion?.name === reg.name;
-                const isHealthy = reg.status === 'healthy';
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedRegion(reg)}
-                    className={`p-4 rounded-xl text-left transition-all duration-200 border flex flex-col justify-between gap-3 ${
-                      isSelected
-                        ? 'bg-[#3985FF]/20 border-[#3985FF] shadow-lg shadow-[#3985FF]/20'
-                        : 'bg-[#101522]/90 border-slate-800 hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className={`w-2.5 h-2.5 rounded-full ${isHealthy ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
-                      <span className="text-[10px] font-mono text-slate-400">{reg.avgLatency}</span>
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-white truncate">{reg.name}</div>
-                      <div className="text-[10px] text-slate-400 font-mono mt-0.5">{reg.nodeCount} Edge PoP(s)</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+            <svg ref={svgRef} className="w-full h-full"></svg>
           </div>
-
+          
           <div className="flex items-center justify-between pt-4 text-xs text-slate-400">
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Healthy PoPs

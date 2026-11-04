@@ -28,6 +28,10 @@ export default function App() {
   const [securityData, setSecurityData] = useState<any>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Threshold state
+  const [cpuThreshold, setCpuThreshold] = useState(80);
+  const [memThreshold, setMemThreshold] = useState(80);
 
   const addToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -40,6 +44,24 @@ export default function App() {
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
   };
+
+  // Threshold monitoring effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nodes.forEach(node => {
+        if (node.status === 'healthy') {
+          if (node.cpu > cpuThreshold) {
+            addToast(`Alert: Node ${node.name} CPU (${node.cpu}%) exceeded threshold (${cpuThreshold}%)`, 'error');
+          }
+          if (node.memory > memThreshold) {
+            addToast(`Alert: Node ${node.name} Memory (${node.memory}%) exceeded threshold (${memThreshold}%)`, 'error');
+          }
+        }
+      });
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [nodes, cpuThreshold, memThreshold]);
+
 
   // Fetch initial data from backend API routes
   useEffect(() => {
@@ -284,7 +306,16 @@ export default function App() {
             {activeTab === 'security' && <SecurityTab securityData={securityData} addToast={addToast} />}
             {activeTab === 'assistant' && <AiAssistantTab nodes={nodes} addToast={addToast} />}
             {activeTab === 'apikeys' && <ApiKeysTab addToast={addToast} />}
-            {activeTab === 'settings' && <SettingsTab currentWorkspace={currentWorkspace} addToast={addToast} />}
+            {activeTab === 'settings' && (
+              <SettingsTab
+                currentWorkspace={currentWorkspace}
+                cpuThreshold={cpuThreshold}
+                setCpuThreshold={setCpuThreshold}
+                memThreshold={memThreshold}
+                setMemThreshold={setMemThreshold}
+                addToast={addToast}
+              />
+            )}
           </div>
         </main>
       </div>

@@ -3,10 +3,14 @@ import { Settings, Shield, Globe, Bell, CheckCircle2 } from 'lucide-react';
 
 interface SettingsTabProps {
   currentWorkspace: any;
+  cpuThreshold: number;
+  setCpuThreshold: (v: number) => void;
+  memThreshold: number;
+  setMemThreshold: (v: number) => void;
   addToast: (msg: string, type?: 'success' | 'error' | 'info') => void;
 }
 
-export const SettingsTab: React.FC<SettingsTabProps> = ({ currentWorkspace, addToast }) => {
+export const SettingsTab: React.FC<SettingsTabProps> = ({ currentWorkspace, cpuThreshold, setCpuThreshold, memThreshold, setMemThreshold, addToast }) => {
   const [providerMode, setProviderMode] = useState('demo');
   const [wsName, setWsName] = useState(currentWorkspace?.name || 'Global Production');
 
@@ -47,6 +51,30 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ currentWorkspace, addT
                   disabled
                   value={currentWorkspace?.plan || 'Enterprise'}
                   className="w-full bg-[#080B12]/50 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-400 cursor-not-allowed font-mono"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-slate-800">
+            <h3 className="text-sm font-bold text-white mb-3">Monitoring Thresholds</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">CPU Usage Alert (%)</label>
+                <input
+                  type="number"
+                  value={cpuThreshold}
+                  onChange={(e) => setCpuThreshold(Number(e.target.value))}
+                  className="w-full bg-[#080B12] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#3985FF]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Memory Usage Alert (%)</label>
+                <input
+                  type="number"
+                  value={memThreshold}
+                  onChange={(e) => setMemThreshold(Number(e.target.value))}
+                  className="w-full bg-[#080B12] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#3985FF]"
                 />
               </div>
             </div>
